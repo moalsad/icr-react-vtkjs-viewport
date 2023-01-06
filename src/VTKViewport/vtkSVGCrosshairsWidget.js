@@ -1,6 +1,6 @@
-import macro from 'vtk.js/Sources/macro';
-import vtkMatrixBuilder from 'vtk.js/Sources/Common/Core/MatrixBuilder';
-import vtkCoordinate from 'vtk.js/Sources/Rendering/Core/Coordinate';
+import macro from '@kitware/vtk.js/macro';
+import vtkMatrixBuilder from '@kitware/vtk.js/Common/Core/MatrixBuilder';
+import vtkCoordinate from '@kitware/vtk.js/Rendering/Core/Coordinate';
 
 let instanceId = 1;
 

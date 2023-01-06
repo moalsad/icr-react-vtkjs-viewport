@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix';
-import vtkImageData from 'vtk.js/Sources/Common/DataModel/ImageData';
-import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
-import vtkMath from 'vtk.js/Sources/Common/Core/Math';
+import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
+import vtkDataArray from '@kitware/vtk.js/Common/Core/DataArray';
+import vtkMath from '@kitware/vtk.js/Common/Core/Math';
 
 import buildMetadata from './data/buildMetadata.js';
 import imageDataCache from './data/imageDataCache.js';
@@ -35,15 +35,11 @@ export default function getImageData(imageIds, displaySetInstanceUid) {
   const colCosineVec = vec3.fromValues(...columnCosines);
   const scanAxisNormal = vec3.cross([], rowCosineVec, colCosineVec);
 
-  let direction = [rowCosineVec, colCosineVec, scanAxisNormal];
-  vtkMath.orthogonalize3x3(direction, direction);
-
-  //setDirection expects orthogonal matrix
-  const orthogonalizedDirection = [
-    ...direction[0],
-    ...direction[1],
-    ...direction[2],
-  ];
+  // setDirection expects orthogonal matrix
+  // Preserve the pure rotation and possible flip while removing other parts.
+  const direction = [...rowCosines, ...columnCosines, ...scanAxisNormal];
+  const orthogonalizedDirection = [];
+  vtkMath.orthogonalize3x3(direction, orthogonalizedDirection);
 
   const { spacing, origin, sortedDatasets } = sortDatasetsByImagePosition(
     scanAxisNormal,
@@ -91,9 +87,9 @@ export default function getImageData(imageIds, displaySetInstanceUid) {
 
   const imageData = vtkImageData.newInstance();
   imageData.setDimensions(xVoxels, yVoxels, zVoxels);
-  imageData.setSpacing(xSpacing, ySpacing, zSpacing);
+  imageData.setSpacing([xSpacing, ySpacing, zSpacing]);
   imageData.setDirection(orthogonalizedDirection);
-  imageData.setOrigin(...origin);
+  imageData.setOrigin([...origin]);
   imageData.getPointData().setScalars(scalarArray);
 
   const _publishPixelDataInserted = count => {

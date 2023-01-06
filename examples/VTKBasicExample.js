@@ -5,9 +5,9 @@ import {
   vtkInteractorStyleMPRWindowLevel,
   invertVolume,
 } from '@vtk-viewport';
-import vtkHttpDataSetReader from 'vtk.js/Sources/IO/Core/HttpDataSetReader';
-import vtkVolume from 'vtk.js/Sources/Rendering/Core/Volume';
-import vtkVolumeMapper from 'vtk.js/Sources/Rendering/Core/VolumeMapper';
+import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
+import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
+import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 
 // The data here is read from an unscaled *.vti, so we translate our windowCenter.
 const PRESETS = {
@@ -28,6 +28,8 @@ class VTKBasicExample extends Component {
 
   componentDidMount() {
     this.apis = [];
+    // Its up to the layout manager of an app to know how many viewports are being created.
+    this.numViewports = 2;
 
     const reader = vtkHttpDataSetReader.newInstance({
       fetchGzip: true,
@@ -111,6 +113,18 @@ class VTKBasicExample extends Component {
         };
 
         api.setInteractorStyle({ istyle, callbacks });
+      }
+
+      if (this.apis.length === this.numViewports) {
+        // Update istyles with apis and apiIndex
+        this.apis.forEach((api, index) => {
+          const renderWindow = api.genericRenderWindow.getRenderWindow();
+          const iStyle = renderWindow.getInteractor().getInteractorStyle();
+          if (iStyle.setApis && iStyle.setApiIndex) {
+            iStyle.setApis(this.apis);
+            iStyle.setApiIndex(index);
+          }
+        });
       }
     };
   };

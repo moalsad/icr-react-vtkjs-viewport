@@ -1,4 +1,4 @@
-import vtkImageMapper from 'vtk.js/Sources/Rendering/Core/ImageMapper';
+import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 
 function computeSlicingModeForAP(viewOrientation) {
   switch (viewOrientation) {

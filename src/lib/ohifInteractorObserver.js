@@ -1,5 +1,5 @@
-import macro from 'vtk.js/Sources/macro';
-import vtkInteractorObserver from 'vtk.js/Sources/Rendering/Core/InteractorObserver';
+import macro from '@kitware/vtk.js/macro';
+import vtkInteractorObserver from '@kitware/vtk.js/Rendering/Core/InteractorObserver';
 
 /**
  * vtkInteractorObserverClass.

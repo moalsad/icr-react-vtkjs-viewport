@@ -1,5 +1,5 @@
-import macro from 'vtk.js/Sources/macro';
-import vtkMouseRangeManipulator from 'vtk.js/Sources/Interaction/Manipulators/MouseRangeManipulator';
+import macro from '@kitware/vtk.js/macro';
+import vtkMouseRangeManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseRangeManipulator';
 
 const MAX_SAFE_INTEGER = 2147483647;
 

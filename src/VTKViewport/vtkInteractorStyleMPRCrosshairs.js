@@ -1,7 +1,7 @@
-import macro from 'vtk.js/Sources/macro';
+import macro from '@kitware/vtk.js/macro';
 import vtkInteractorStyleMPRSlice from './vtkInteractorStyleMPRSlice.js';
-import Constants from 'vtk.js/Sources/Rendering/Core/InteractorStyle/Constants';
-import vtkCoordinate from 'vtk.js/Sources/Rendering/Core/Coordinate';
+import Constants from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
+import vtkCoordinate from '@kitware/vtk.js/Rendering/Core/Coordinate';
 
 const { States } = Constants;
 
@@ -98,7 +98,7 @@ export function extend(publicAPI, model, initialValues = {}) {
   // Inheritance
   vtkInteractorStyleMPRSlice.extend(publicAPI, model, initialValues);
 
-  macro.setGet(publicAPI, model, ['callback', 'apis', 'apiIndex', 'onScroll']);
+  macro.setGet(publicAPI, model, ['callback', 'onScroll']);
 
   // Object specific methods
   vtkInteractorStyleMPRCrosshairs(publicAPI, model);

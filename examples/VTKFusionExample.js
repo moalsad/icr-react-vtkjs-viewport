@@ -1,14 +1,14 @@
 import React from 'react';
 import { Component } from 'react';
 import { getImageData, loadImageData, View2D, View3D } from '@vtk-viewport';
-import vtkVolume from 'vtk.js/Sources/Rendering/Core/Volume';
-import vtkVolumeMapper from 'vtk.js/Sources/Rendering/Core/VolumeMapper';
+import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
+import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 import { api } from 'dicomweb-client';
 import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import './initCornerstone.js';
-import vtkColorTransferFunction from 'vtk.js/Sources/Rendering/Core/ColorTransferFunction';
-import vtkPiecewiseFunction from 'vtk.js/Sources/Common/DataModel/PiecewiseFunction';
-import vtkColorMaps from 'vtk.js/Sources/Rendering/Core/ColorTransferFunction/ColorMaps';
+import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
+import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunction';
+import vtkColorMaps from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction/ColorMaps';
 import presets from './presets.js';
 
 window.cornerstoneWADOImageLoader = cornerstoneWADOImageLoader;
@@ -366,6 +366,7 @@ class VTKFusionExample extends Component {
     const imageIdPromise = createStudyImageIds(url, searchInstanceOptions);
 
     this.components = [];
+    this.numViewports = 2;
 
     const imageIds = await imageIdPromise;
 
@@ -414,6 +415,18 @@ class VTKFusionExample extends Component {
   saveComponentReference = viewportIndex => {
     return component => {
       this.components[viewportIndex] = component;
+
+      if (this.components.length === this.numViewports) {
+        // Update istyles with apis and apiIndex
+        this.components.forEach((api, index) => {
+          const renderWindow = api.genericRenderWindow.getRenderWindow();
+          const iStyle = renderWindow.getInteractor().getInteractorStyle();
+          if (iStyle.setApis && iStyle.setApiIndex) {
+            iStyle.setApis(this.components);
+            iStyle.setApiIndex(index);
+          }
+        });
+      }
     };
   };
 

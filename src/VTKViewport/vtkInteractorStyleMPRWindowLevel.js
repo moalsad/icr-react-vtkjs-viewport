@@ -1,6 +1,6 @@
-import macro from 'vtk.js/Sources/macro';
+import macro from '@kitware/vtk.js/macro';
 import vtkInteractorStyleMPRSlice from './vtkInteractorStyleMPRSlice.js';
-import Constants from 'vtk.js/Sources/Rendering/Core/InteractorStyle/Constants';
+import Constants from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
 import {
   toWindowLevel,
   toLowHighRange,

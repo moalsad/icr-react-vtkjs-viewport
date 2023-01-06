@@ -9,8 +9,8 @@ import {
   vtkInteractorStyleMPRWindowLevel,
 } from '@vtk-viewport';
 import { api as dicomwebClientApi } from 'dicomweb-client';
-import vtkVolume from 'vtk.js/Sources/Rendering/Core/Volume';
-import vtkVolumeMapper from 'vtk.js/Sources/Rendering/Core/VolumeMapper';
+import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
+import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 
 const url = 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/rs';
 

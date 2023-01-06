@@ -1,13 +1,13 @@
-import macro from 'vtk.js/Sources/macro';
-import vtkMath from 'vtk.js/Sources/Common/Core/Math';
-import vtkMatrixBuilder from 'vtk.js/Sources/Common/Core/MatrixBuilder';
-import vtkInteractorStyleManipulator from 'vtk.js/Sources/Interaction/Style/InteractorStyleManipulator';
-import vtkMouseCameraTrackballRotateManipulator from 'vtk.js/Sources/Interaction/Manipulators/MouseCameraTrackballRotateManipulator';
-import vtkMouseCameraTrackballPanManipulator from 'vtk.js/Sources/Interaction/Manipulators/MouseCameraTrackballPanManipulator';
-import vtkMouseCameraTrackballZoomManipulator from 'vtk.js/Sources/Interaction/Manipulators/MouseCameraTrackballZoomManipulator';
-import vtkMouseRangeManipulator from 'vtk.js/Sources/Interaction/Manipulators/MouseRangeManipulator';
-import vtkCoordinate from 'vtk.js/Sources/Rendering/Core/Coordinate';
-import Constants from 'vtk.js/Sources/Rendering/Core/InteractorStyle/Constants';
+import macro from '@kitware/vtk.js/macro';
+import vtkMath from '@kitware/vtk.js/Common/Core/Math';
+import vtkMatrixBuilder from '@kitware/vtk.js/Common/Core/MatrixBuilder';
+import vtkInteractorStyleManipulator from '@kitware/vtk.js/Interaction/Style/InteractorStyleManipulator';
+import vtkMouseCameraTrackballRotateManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballRotateManipulator';
+import vtkMouseCameraTrackballPanManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballPanManipulator';
+import vtkMouseCameraTrackballZoomManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballZoomManipulator';
+import vtkMouseRangeManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseRangeManipulator';
+import vtkCoordinate from '@kitware/vtk.js/Rendering/Core/Coordinate';
+import Constants from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
 import ViewportData from './ViewportData';
 import EVENTS from '../events';
 
@@ -111,14 +111,14 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
   }
 
   function setViewUpInternal(viewUp) {
-    const renderer = model.interactor.getCurrentRenderer();
+    const renderer = model._interactor.getCurrentRenderer();
     const camera = renderer.getActiveCamera();
     camera.setViewUp(...viewUp);
   }
 
   // in world space
   function setSliceNormalInternal(normal) {
-    const renderer = model.interactor.getCurrentRenderer();
+    const renderer = model._interactor.getCurrentRenderer();
     const camera = renderer.getActiveCamera();
 
     //copy arguments for internal editing so we don't cause sideeffects
@@ -228,7 +228,7 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
         camera.setThicknessFromFocalPoint(model.slabThickness);
       });
 
-      const eventWindow = model.interactor.getContainer();
+      const eventWindow = model._interactor.getContainer();
 
       publicAPI.setViewport(new ViewportData(eventWindow));
     } else {
@@ -334,7 +334,7 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
 
   publicAPI.setVolumeActor = actor => {
     model.volumeActor = actor;
-    const renderer = model.interactor.getCurrentRenderer();
+    const renderer = model._interactor.getCurrentRenderer();
     const camera = renderer.getActiveCamera();
     if (actor) {
       // prevent zoom manipulator from messing with our focal point
@@ -357,7 +357,7 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
   };
 
   publicAPI.getSlice = () => {
-    const renderer = model.interactor.getCurrentRenderer();
+    const renderer = model._interactor.getCurrentRenderer();
     const camera = renderer.getActiveCamera();
     const sliceNormal = publicAPI.getSliceNormal();
 
@@ -463,7 +463,7 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
   };
 
   publicAPI.setSlice = slice => {
-    const renderer = model.interactor.getCurrentRenderer();
+    const renderer = model._interactor.getCurrentRenderer();
     const camera = renderer.getActiveCamera();
 
     if (model.volumeActor) {
@@ -563,8 +563,8 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
 
   // Slice normal is just camera DOP
   publicAPI.getSliceNormal = () => {
-    if (model.volumeActor && model.interactor) {
-      const renderer = model.interactor.getCurrentRenderer();
+    if (model.volumeActor && model._interactor) {
+      const renderer = model._interactor.getCurrentRenderer();
       const camera = renderer.getActiveCamera();
       return camera.getDirectionOfProjection();
     }
@@ -582,8 +582,8 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
   };
 
   publicAPI.getViewUp = () => {
-    if (model.volumeActor && model.interactor) {
-      const renderer = model.interactor.getCurrentRenderer();
+    if (model.volumeActor && model._interactor) {
+      const renderer = model._interactor.getCurrentRenderer();
       const camera = renderer.getActiveCamera();
 
       return camera.getViewUp();
@@ -618,7 +618,7 @@ function vtkInteractorStyleMPRSlice(publicAPI, model) {
 
     // Update the camera clipping range if the slab
     // thickness property is changed
-    const renderer = model.interactor.getCurrentRenderer();
+    const renderer = model._interactor.getCurrentRenderer();
     const camera = renderer.getActiveCamera();
     camera.setThicknessFromFocalPoint(slabThickness);
   };
@@ -652,12 +652,9 @@ export function extend(publicAPI, model, initialValues = {}) {
   vtkInteractorStyleManipulator.extend(publicAPI, model, initialValues);
 
   macro.setGet(publicAPI, model, ['onScroll']);
-  macro.get(publicAPI, model, [
-    'slabThickness',
-    'volumeActor',
-    'apis',
-    'apiIndex',
-  ]);
+  macro.setGet(publicAPI, model, ['apis', 'apiIndex']);
+  // Custom setters
+  macro.get(publicAPI, model, ['slabThickness', 'volumeActor']);
 
   // Object specific methods
   vtkInteractorStyleMPRSlice(publicAPI, model);

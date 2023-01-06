@@ -59,7 +59,7 @@ module.exports = (env, argv) => {
     },
     externals: [
       // :wave:
-      /\b(vtk.js)/,
+      /@kitware\/vtk\.js/,
       // Used to build/load metadata
       {
         'cornerstone-core': {

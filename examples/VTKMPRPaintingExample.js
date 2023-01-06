@@ -3,13 +3,13 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { View2D, View3D } from '@vtk-viewport';
 
-import vtkHttpDataSetReader from 'vtk.js/Sources/IO/Core/HttpDataSetReader';
-import vtkVolume from 'vtk.js/Sources/Rendering/Core/Volume';
-import vtkVolumeMapper from 'vtk.js/Sources/Rendering/Core/VolumeMapper';
-import vtkImageData from 'vtk.js/Sources/Common/DataModel/ImageData';
-import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
-import vtkColorTransferFunction from 'vtk.js/Sources/Rendering/Core/ColorTransferFunction';
-import vtkPiecewiseFunction from 'vtk.js/Sources/Common/DataModel/PiecewiseFunction';
+import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
+import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
+import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
+import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
+import vtkDataArray from '@kitware/vtk.js/Common/Core/DataArray';
+import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
+import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunction';
 
 function createVolumeRenderingActor(imageData) {
   const mapper = vtkVolumeMapper.newInstance();
@@ -91,6 +91,7 @@ class VTKMPRPaintingExample extends Component {
 
   componentDidMount() {
     this.apis = [];
+    this.numViewports = 2;
 
     const reader = vtkHttpDataSetReader.newInstance({
       fetchGzip: true,
@@ -179,6 +180,18 @@ class VTKMPRPaintingExample extends Component {
       this.apis[viewportIndex] = api;
 
       this.setThresholdFromValue(this.state.threshold);
+
+      if (this.apis.length === this.numViewports) {
+        // Update istyles with apis and apiIndex
+        this.apis.forEach((api, index) => {
+          const renderWindow = api.genericRenderWindow.getRenderWindow();
+          const iStyle = renderWindow.getInteractor().getInteractorStyle();
+          if (iStyle.setApis && iStyle.setApiIndex) {
+            iStyle.setApis(this.apis);
+            iStyle.setApiIndex(index);
+          }
+        });
+      }
     };
   };
 

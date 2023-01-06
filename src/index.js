@@ -1,3 +1,8 @@
+// Load Rendering OpenGL/WebGPU Profiles - https://kitware.github.io/vtk-js/api/Rendering_OpenGL_Profiles.html
+import '@kitware/vtk.js/Rendering/Profiles/All';
+// Force the loading of HttpDataAccessHelper to support gzip decompression
+import '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
+
 import View2D from './VTKViewport/View2D';
 import View3D from './VTKViewport/View3D';
 import vtkInteractorStyleMPRSlice from './VTKViewport/vtkInteractorStyleMPRSlice.js';

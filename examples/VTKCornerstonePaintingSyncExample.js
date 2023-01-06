@@ -3,13 +3,13 @@ import { Component } from 'react';
 
 import { View2D, getImageData, loadImageData } from '@vtk-viewport';
 import CornerstoneViewport from 'react-cornerstone-viewport';
-import vtkImageData from 'vtk.js/Sources/Common/DataModel/ImageData';
-import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
+import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
+import vtkDataArray from '@kitware/vtk.js/Common/Core/DataArray';
 import cornerstone from 'cornerstone-core';
 import cornerstoneTools from 'cornerstone-tools';
 import './initCornerstone.js';
-import vtkVolumeMapper from 'vtk.js/Sources/Rendering/Core/VolumeMapper';
-import vtkVolume from 'vtk.js/Sources/Rendering/Core/Volume';
+import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
+import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
 
 const { EVENTS } = cornerstoneTools;
 window.cornerstoneTools = cornerstoneTools;

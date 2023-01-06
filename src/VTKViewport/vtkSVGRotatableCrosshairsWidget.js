@@ -1,9 +1,9 @@
-import macro from 'vtk.js/Sources/macro';
-import vtkMatrixBuilder from 'vtk.js/Sources/Common/Core/MatrixBuilder';
-import vtkCoordinate from 'vtk.js/Sources/Rendering/Core/Coordinate';
+import macro from '@kitware/vtk.js/macro';
+import vtkMatrixBuilder from '@kitware/vtk.js/Common/Core/MatrixBuilder';
+import vtkCoordinate from '@kitware/vtk.js/Rendering/Core/Coordinate';
 import liangBarksyClip from '../helpers/liangBarksyClip';
 import { vec2, vec3 } from 'gl-matrix';
-import { projectVector2D } from 'vtk.js/Sources/Common/Core/Math';
+import { projectVector2D } from '@kitware/vtk.js/Common/Core/Math';
 
 let instanceId = 1;
 

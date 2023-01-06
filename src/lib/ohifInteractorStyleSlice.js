@@ -1,7 +1,7 @@
-import macro from 'vtk.js/Sources/macro';
-import vtkImageMapper from 'vtk.js/Sources/Rendering/Core/ImageMapper';
-import vtkConstants from 'vtk.js/Sources/Rendering/Core/InteractorStyle/Constants.js';
-import vtkInteractorStyleTrackballCamera from 'vtk.js/Sources/Interaction/Style/InteractorStyleTrackballCamera';
+import macro from '@kitware/vtk.js/macro';
+import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
+import vtkConstants from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants.js';
+import vtkInteractorStyleTrackballCamera from '@kitware/vtk.js/Interaction/Style/InteractorStyleTrackballCamera';
 
 /**
  * Class inherits from InteractorStyle.

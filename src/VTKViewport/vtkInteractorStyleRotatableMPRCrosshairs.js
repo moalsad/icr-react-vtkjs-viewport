@@ -1,10 +1,10 @@
-import macro from 'vtk.js/Sources/macro';
+import macro from '@kitware/vtk.js/macro';
 import vtkInteractorStyleMPRSlice from './vtkInteractorStyleMPRSlice.js';
-import Constants from 'vtk.js/Sources/Rendering/Core/InteractorStyle/Constants';
-import vtkCoordinate from 'vtk.js/Sources/Rendering/Core/Coordinate';
-import vtkMatrixBuilder from 'vtk.js/Sources/Common/Core/MatrixBuilder';
+import Constants from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
+import vtkCoordinate from '@kitware/vtk.js/Rendering/Core/Coordinate';
+import vtkMatrixBuilder from '@kitware/vtk.js/Common/Core/MatrixBuilder';
 import { vec2, vec3, quat } from 'gl-matrix';
-import vtkMath from 'vtk.js/Sources/Common/Core/Math';
+import vtkMath from '@kitware/vtk.js/Common/Core/Math';
 
 const { States } = Constants;
 
@@ -796,8 +796,6 @@ export function extend(publicAPI, model, initialValues = {}) {
 
   macro.setGet(publicAPI, model, [
     'callback',
-    'apis',
-    'apiIndex',
     'onScroll',
     'operation',
     'lineGrabDistance',
