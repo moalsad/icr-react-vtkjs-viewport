@@ -10,6 +10,8 @@ import VTKCrosshairsExample from './VTKCrosshairsExample.js';
 import VTKRotatableCrosshairsExample from './VTKRotatableCrosshairsExample.js';
 import VTKMPRRotateExample from './VTKMPRRotateExample.js';
 import VTKVolumeRenderingExample from './VTKVolumeRenderingExample.js';
+import ContourRenderingExample from './ContourRenderingExample';
+import ContourMPRRenderingExample from './ContourMPRRenderingExample';
 
 function LinkOut({ href, text }) {
   return (
@@ -89,6 +91,16 @@ function Index() {
       text:
         'Generating vtkjs imagedata from cornerstone images and displaying them in a VTK viewport.',
     },
+    {
+      title: 'Contour Rendering Example',
+      url: '/contour-rendering',
+      text: 'Rendering contours sliced from meshes',
+    },
+    {
+      title: 'Contour MPR (with Rotatable Crosshairs) Example',
+      url: '/contour-mpr-rendering',
+      text: 'Rendering planar contours in MPR.',
+    },
   ];
 
   const exampleComponents = examples.map(e => {
@@ -101,23 +113,6 @@ function Index() {
         <h1>VTK React Viewport Component</h1>
       </div>
       <div className="row">
-        <div className="col-xs-12 col-lg-6">
-          <h4>What is this?</h4>
-          <p>
-            This is a set of re-usable components for displaying data with{' '}
-            <LinkOut
-              href={'https://github.com/Kitware/vtk-js'}
-              text={'VTK.js'}
-            />
-            .
-          </p>
-          <h4>Why does it exist?</h4>
-          <p>
-            To provide a simple starting point for developers that wish to build
-            applications on top of VTK.js.
-          </p>
-        </div>
-
         <div className="col-xs-12 col-lg-12" style={style}>
           <h3>Examples</h3>
           {exampleComponents}
@@ -129,7 +124,7 @@ function Index() {
 
 function Example(props) {
   return (
-    <div className="container">
+    <div className="container" style={{ marginLeft: 20, marginRight: 20 }}>
       <h5>
         <Link to="/">Back to Examples</Link>
       </h5>
@@ -154,6 +149,10 @@ function AppRouter() {
   const rotateMPR = () => Example({ children: <VTKMPRRotateExample /> });
   const volumeRendering = () =>
     Example({ children: <VTKVolumeRenderingExample /> });
+  const contourRendering = () =>
+    Example({ children: <ContourRenderingExample /> });
+  const contourMPRRendering = () =>
+    Example({ children: <ContourMPRRenderingExample /> });
 
   return (
     <Router>
@@ -172,6 +171,8 @@ function AppRouter() {
         <Route exact path="/rotate" render={rotateMPR} />
         <Route exact path="/volume-rendering" render={volumeRendering} />
         <Route exact path="/cornerstone-load-image-data" render={loadImage} />
+        <Route exact path="/contour-rendering" render={contourRendering} />
+        <Route exact path="/contour-mpr-rendering" render={contourMPRRendering} />
         <Route exact component={Index} />
       </Switch>
     </Router>

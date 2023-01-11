@@ -8,6 +8,13 @@ import vtkInteractorStyleMPRSlice from './vtkInteractorStyleMPRSlice';
 import vtkPaintFilter from '@kitware/vtk.js/Filters/General/PaintFilter';
 import vtkPaintWidget from '@kitware/vtk.js/Widgets/Widgets3D/PaintWidget';
 import vtkSVGWidgetManager from './vtkSVGWidgetManager';
+// Contour ROIs
+import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
+import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor';
+import vtkCutter from '@kitware/vtk.js/Filters/Core/Cutter';
+import vtkPlane from '@kitware/vtk.js/Common/DataModel/Plane';
+import vtkProperty from '@kitware/vtk.js/Rendering/Core/Property';
+import vtkMath from '@kitware/vtk.js/Common/Core/Math';
 
 import ViewportOverlay from '../ViewportOverlay/ViewportOverlay.js';
 import { ViewTypes } from '@kitware/vtk.js/Widgets/Core/WidgetManager/Constants';
@@ -27,6 +34,12 @@ export default class View2D extends Component {
   static propTypes = {
     volumes: PropTypes.array.isRequired,
     actors: PropTypes.array,
+    contourRois: PropTypes.objectOf(
+      PropTypes.shape({
+        polyData: PropTypes.object.isRequired,
+        color: PropTypes.array.isRequired,
+      })
+    ),
     painting: PropTypes.bool.isRequired,
     paintFilterBackgroundImageData: PropTypes.object,
     paintFilterLabelMapImageData: PropTypes.object,
@@ -74,6 +87,21 @@ export default class View2D extends Component {
     };
 
     this.apiProperties = {};
+
+    /*
+      plane, // cut function
+      // for each contour ROI
+      contours: {
+        uid: {
+          filter, // cutter filter
+          actor, // contour actor
+        },
+      },
+    */
+    this.contoursApi = {
+      plane: vtkPlane.newInstance(),
+      contours: {},
+    };
   }
 
   updatePaintbrush() {
@@ -114,12 +142,22 @@ export default class View2D extends Component {
     this.renderWindow = this.genericRenderWindow.getRenderWindow();
     const oglrw = this.genericRenderWindow.getOpenGLRenderWindow();
 
+    // Three layers: volumes, paint and contours
+    this.renderWindow.setNumberOfLayers(3);
+
     // add paint renderer
     this.paintRenderer = vtkRenderer.newInstance();
     this.renderWindow.addRenderer(this.paintRenderer);
-    this.renderWindow.setNumberOfLayers(2);
     this.paintRenderer.setLayer(1);
     this.paintRenderer.setInteractive(false);
+
+    // add contours renderer
+    // ToDo: try ResolveCoincidentTopology-related methods to to see how to make actors appear in front of the image.
+    this.contoursRenderer = vtkRenderer.newInstance();
+    this.renderWindow.addRenderer(this.contoursRenderer);
+    this.contoursRenderer.setLayer(2);
+    this.contoursRenderer.setInteractive(false);
+    this.contoursRenderer.setActiveCamera(this.renderer.getActiveCamera());
 
     // update view node tree so that vtkOpenGLHardwareSelector can access
     // the vtkOpenGLRenderer instance.
@@ -207,8 +245,10 @@ export default class View2D extends Component {
 
     istyle.onModified(() => {
       this.updatePaintbrush();
+      this.updateContours();
     });
     this.updatePaintbrush();
+    this.updateContours();
 
     const svgWidgetManager = vtkSVGWidgetManager.newInstance();
 
@@ -242,6 +282,7 @@ export default class View2D extends Component {
     const boundSetOutlineThickness = this.setOutlineThickness.bind(this);
     const boundOutlineRendering = this.setOutlineRendering.bind(this);
     const boundRequestNewSegmentation = this.requestNewSegmentation.bind(this);
+    const boundUpdateContours = this.updateContours.bind(this);
 
     this.svgWidgets = {};
 
@@ -263,6 +304,10 @@ export default class View2D extends Component {
         filters,
         actors,
         volumes,
+        contoursApi: {
+          ...this.contoursApi,
+          updateContours: boundUpdateContours,
+        },
         _component: this,
         updateImage: boundUpdateImage,
         updateVOI: boundUpdateVOI,
@@ -427,6 +472,10 @@ export default class View2D extends Component {
       istyle.setVolumeActor(volumes[0]);
     }
 
+    istyle.onModified(() => {
+      this.updateContours();
+    });
+
     // Add appropriate callbacks
     Object.keys(callbacks).forEach(key => {
       if (typeof istyle[key] === 'function') {
@@ -557,6 +606,81 @@ export default class View2D extends Component {
     labelmap.ofun.addPointLong(segmentIndex, segmentOpacity, 0.5, 1.0);
   }
 
+  updateContoursApi(prevContourRois) {
+    const contourRois = this.props.contourRois;
+
+    const keys = contourRois ? Object.keys(contourRois) : [];
+    const prevKeys = prevContourRois ? Object.keys(prevContourRois) : [];
+
+    const intersection = keys.filter(uid => prevKeys.includes(uid));
+
+    const removeContour = uid => {
+      const contour = this.contoursApi.contours[uid];
+      if (contour) {
+        const actor = contour.actor;
+        const filter = contour.filter;
+        const mapper = actor.getMapper();
+
+        this.contoursRenderer.removeActor(actor);
+        actor.delete();
+        mapper.delete();
+        filter.delete();
+
+        delete this.contoursApi.contours[uid];
+      }
+    };
+
+    // Remove previous contours which are not included in the current contourRois
+    prevKeys.forEach(uid => !intersection.includes(uid) && removeContour(uid));
+    // Add new contours which were not included in the previous contourRois
+    keys.forEach(uid => {
+      if (!intersection.includes(uid)) {
+        const polyData = contourRois[uid].polyData;
+        const color = contourRois[uid].color;
+
+        const cutter = vtkCutter.newInstance();
+        cutter.setCutFunction(this.contoursApi.plane);
+        cutter.setInputData(polyData);
+        const mapper = vtkMapper.newInstance();
+        mapper.setInputConnection(cutter.getOutputPort());
+        const actor = vtkActor.newInstance();
+        actor.setMapper(mapper);
+        // Contour properties
+        const property = actor.getProperty();
+        property.setRepresentation(vtkProperty.Representation.SURFACE);
+        property.setLighting(false);
+        property.setColor(color);
+        // property.setOpacity(1);
+        property.setOpacity(color[3] ? color[3] : 1);
+
+        this.contoursRenderer.addActor(actor);
+
+        this.contoursApi.contours[uid] = {
+          filter: cutter,
+          actor: actor,
+        };
+      }
+    });
+  }
+
+  updateContours() {
+    const renderWindow = this.genericRenderWindow.getRenderWindow();
+    const istyle = renderWindow.getInteractor().getInteractorStyle();
+
+    const camera = this.renderer.getActiveCamera();
+    const normal = camera.getDirectionOfProjection();
+    const origin = camera.getFocalPoint();
+
+    const cutFunction = this.contoursApi.plane;
+    const originChanged = !vtkMath.areEquals(origin, cutFunction.getOrigin());
+    const normalChanged = !vtkMath.areEquals(normal, cutFunction.getNormal());
+
+    if (originChanged || normalChanged) {
+      cutFunction.setOrigin(origin);
+      cutFunction.setNormal(normal);
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.volumes !== this.props.volumes) {
       this.props.volumes.forEach(volume => {
@@ -573,6 +697,9 @@ export default class View2D extends Component {
 
       this.renderWindow.render();
     }
+
+    // Contour ROIS
+    this.updateContoursApi(prevProps.contourRois);
 
     if (
       !prevProps.paintFilterBackgroundImageData &&

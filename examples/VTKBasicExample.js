@@ -55,8 +55,6 @@ class VTKBasicExample extends Component {
     const volume = this.state.volumes[0];
     const rgbTransferFunction = volume.getProperty().getRGBTransferFunction(0);
 
-    this.state.volume;
-
     const low = voi.windowCenter - voi.windowWidth / 2;
     const high = voi.windowCenter + voi.windowWidth / 2;
 
