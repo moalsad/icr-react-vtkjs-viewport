@@ -20,7 +20,7 @@ class ViewportOverlay extends PureComponent {
     studyTime: PropTypes.string,
     studyDescription: PropTypes.string,
     patientName: PropTypes.string,
-    patientId: PropTypes.string,
+    patientId: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     seriesNumber: PropTypes.string,
     seriesDescription: PropTypes.string,
   };

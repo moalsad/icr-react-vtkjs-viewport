@@ -40,6 +40,7 @@ export default class View2D extends Component {
         color: PropTypes.array.isRequired,
       })
     ),
+    onContourRoiCreated: PropTypes.func,
     painting: PropTypes.bool.isRequired,
     paintFilterBackgroundImageData: PropTypes.object,
     paintFilterLabelMapImageData: PropTypes.object,
@@ -650,7 +651,6 @@ export default class View2D extends Component {
         property.setRepresentation(vtkProperty.Representation.SURFACE);
         property.setLighting(false);
         property.setColor(color);
-        // property.setOpacity(1);
         property.setOpacity(color[3] ? color[3] : 1);
 
         this.contoursRenderer.addActor(actor);
@@ -659,6 +659,12 @@ export default class View2D extends Component {
           filter: cutter,
           actor: actor,
         };
+
+        if (this.props.onContourRoiCreated) {
+          this.props.onContourRoiCreated(uid, actor);
+        }
+
+        this.updateImage();
       }
     });
   }

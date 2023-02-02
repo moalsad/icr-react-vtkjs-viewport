@@ -1,10 +1,10 @@
 import React from 'react';
 import cornerstone from 'cornerstone-core';
-import { View2D, getImageData, loadImageData } from '@vtk-viewport';
+import { View2D, getImageData, loadImageData, vtkSVGRotatableCrosshairsWidget,
+  vtkInteractorStyleRotatableMPRCrosshairs, } from '@vtk-viewport';
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
 import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
-import vtkSphereSource from '@kitware/vtk.js/Filters/Sources/SphereSource';
 import vtkImageMarchingCubes from '@kitware/vtk.js/Filters/General/ImageMarchingCubes';
 import vtkMatrixBuilder from '@kitware/vtk.js/Common/Core/MatrixBuilder';
 import vtkOBJReader from '@kitware/vtk.js/IO/Misc/OBJReader';
@@ -192,17 +192,60 @@ class ContourMPRRenderingExample extends React.Component {
       this.apis[viewportIndex] = api;
       const apis = this.apis;
 
-      this.apis.forEach((api, index) => {
-        const renderWindow = api.genericRenderWindow.getRenderWindow();
-        const iStyle = renderWindow.getInteractor().getInteractorStyle();
-        if (iStyle.setApis && iStyle.setApiIndex) {
-          iStyle.setApis(this.apis);
-          iStyle.setApiIndex(index);
-        }
-      });
+      // It is up to the layout manager to know the number of viewports
+      // if (apis.length === 3) {
+      //   apis.forEach((api, index) => {
+      //     api.svgWidgets.rotatableCrosshairsWidget.setApiIndex(index);
+      //     api.svgWidgets.rotatableCrosshairsWidget.setApis(apis);
+      //   });
+      //
+      //
+      // }
+      if (apis.length === 3) {
+        apis.forEach((api, index) => {
+          const renderWindow = api.genericRenderWindow.getRenderWindow();
+
+          // Add Rotatable Crosshairs
+          api.addSVGWidget(
+            vtkSVGRotatableCrosshairsWidget.newInstance(),
+            'rotatableCrosshairsWidget'
+          );
+          api.svgWidgets.rotatableCrosshairsWidget.setApiIndex(index);
+          api.svgWidgets.rotatableCrosshairsWidget.setApis(apis);
+
+          const iStyle = vtkInteractorStyleRotatableMPRCrosshairs.newInstance();
+          // if (iStyle.setApis && iStyle.setApiIndex) {
+          //   iStyle.setApis(this.apis);
+          //   iStyle.setApiIndex(index);
+          // }
+
+          api.setInteractorStyle({
+            istyle: iStyle,
+            configuration: {
+              apis,
+              apiIndex: viewportIndex,
+            },
+          });
+
+          renderWindow.render();
+        });
+
+        apis[0].svgWidgets.rotatableCrosshairsWidget.resetCrosshairs(apis, 0);
+      }
 
       window.apis = apis;
     };
+  };
+
+  resetCrosshairs = () => {
+    const apis = this.apis;
+
+    apis.forEach(api => {
+      api.resetOrientation();
+    });
+
+    // Reset the crosshairs
+    apis[0].svgWidgets.rotatableCrosshairsWidget.resetCrosshairs(apis, 0);
   };
 
   render() {
@@ -216,13 +259,36 @@ class ContourMPRRenderingExample extends React.Component {
           <div className="col-xs-12">
             <p>This example demonstrates contour rendering in 3D MPR.</p>
           </div>
+          <div className="col-xs-4">
+            <button onClick={this.resetCrosshairs}>Reset crosshairs</button>
+          </div>
         </div>
         <div className="row">
-          <div className="col-sm-6">
+          <div className="col-sm-4">
             <View2D
               volumes={this.state.volumes}
               contourRois={this.state.contourRois}
               onCreated={this.saveRenderWindow(0)}
+              orientation={{ sliceNormal: [0, 0, 1], viewUp: [0, -1, 0] }}
+              showRotation={true}
+            />
+          </div>
+          <div className="col-sm-4">
+            <View2D
+              volumes={this.state.volumes}
+              contourRois={this.state.contourRois}
+              onCreated={this.saveRenderWindow(1)}
+              orientation={{ sliceNormal: [1, 0, 0], viewUp: [0, 0, -1] }}
+              showRotation={true}
+            />
+          </div>
+          <div className="col-sm-4">
+            <View2D
+              volumes={this.state.volumes}
+              contourRois={this.state.contourRois}
+              onCreated={this.saveRenderWindow(2)}
+              orientation={{ sliceNormal: [0, 1, 0], viewUp: [0, 0, -1] }}
+              showRotation={true}
             />
           </div>
         </div>
