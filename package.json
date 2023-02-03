@@ -1,12 +1,11 @@
 {
   "name": "react-vtkjs-viewport",
-  "version": "0.0.0-semantically-released",
+  "version": "0.14.5-icr.1",
   "description": "VTK.js image viewport component for React",
   "author": "OHIF Contributors",
   "license": "MIT",
   "repository": "OHIF/react-vtkjs-viewport",
   "main": "dist/index.umd.js",
-  "module": "src/index.js",
   "engines": {
     "node": ">=8",
     "npm": ">=5"
